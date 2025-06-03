@@ -5,6 +5,7 @@ const PORT = process.env.PORT_ONE ||
 const mongoose = require("mongoose");
 const Commande = require("./Commande");
 const axios = require('axios');
+const isAuthenticated = require("./isAuthenticated");
 //Connexion à la base de données
 mongoose.set('strictQuery', true);
 mongoose.connect(
@@ -13,7 +14,7 @@ mongoose.connect(
         useNewUrlParser: true,
         useUnifiedTopology: true,
     },
-        console.log(`Commande-Service DB Connected`)
+    console.log(`Commande-Service DB Connected`)
 );
 app.use(express.json());
 
@@ -40,17 +41,15 @@ async function httpRequest(ids) {
         console.error(error);
     }
 }
-app.post("/commande/ajouter", async (req, res, next) => {
-    
-    const { ids, email_utilisateur } = req.body;
+app.post("/commande/ajouter", isAuthenticated, async (req, res, next) => {
+
+    const { ids } = req.body;
     httpRequest(req.body.ids).then(total => {
         const newCommande = new Commande({
-            produits:ids,
             ids,
-            email_utilisateur: email_utilisateur,
+            email_utilisateur: req.user.email,
             prix_total: total,
         });
-        res.
         newCommande.save()
             .then(commande => res.status(201).json(commande))
             .catch(error => res.status(400).json({ error }));
