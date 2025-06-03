@@ -3,6 +3,7 @@ const app = express();
 const PORT = process.env.PORT_ONE || 4000;
 const mongoose = require("mongoose");
 const Produit = require("./Produit");
+const isAuthenticated = require("./isAuthenticated");
 app.use(express.json());
 
 
@@ -17,7 +18,7 @@ mongoose.connect(
     
 );
 
-app.post("/produit/ajouter", (req, res, next) => {
+app.post("/produit/ajouter", isAuthenticated, (req, res, next) => {
     const { nom, description, prix } = req.body;
     const newProduit = new Produit({
         nom,
